@@ -33,19 +33,19 @@ Those are all the components you'll need for the Glowtie:
 # Schematics & Soldering
 I've downloaded the schematic from [Raxathor instructable](https://www.instructables.com/GlowTie/).
 The circuit on the pcb looks like the following:
-![Schematic1](https://github.com/Donut-Studio/Glowtie/blob/images/Schematic1.png)
-![Schematic2](https://github.com/Donut-Studio/Glowtie/blob/images/Schematic2.png)
+![Schematic1](https://github.com/Donut-Studio/Glowtie/blob/main/images/Schematic1.png)
+![Schematic2](https://github.com/Donut-Studio/Glowtie/blob/main/images/Schematic2.png)
 
 The pcb I've used had no indication on where the components should be placed.
 By tracing the paths and looking at the schematic, I was able to get everything in the right spot.
 Look at these pictures if you are not sure where to place your components:
 
-![Soldering Front](https://github.com/Donut-Studio/Glowtie/blob/images/SolderingFront.png)
-![Soldering Back](https://github.com/Donut-Studio/Glowtie/blob/images/SolderingBack.png)
+![Soldering Front](https://github.com/Donut-Studio/Glowtie/blob/main/images/SolderingFront.png)
+![Soldering Back](https://github.com/Donut-Studio/Glowtie/blob/main/images/SolderingBack.png)
 
 Make sure to program your chip in advance or, add some programming cables to the back.
 Now your pcb should look something like this:
-![Done](https://github.com/Donut-Studio/Glowtie/blob/images/PCBFinished.png)
+![Done](https://github.com/Donut-Studio/Glowtie/blob/main/images/PCBFinished.png)
 
 ***
 # Programming
