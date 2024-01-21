@@ -31,7 +31,7 @@ Those are all the components you'll need for the Glowtie:
 
 ***
 # Schematics & Soldering
-I've downloaded the schematic from [Raxathor instructable](https://www.instructables.com/GlowTie/).
+These are the schematics from [Raxathor's instructable](https://www.instructables.com/GlowTie/).
 The circuit on the pcb looks like the following:
 ![Schematic1](https://github.com/Donut-Studio/Glowtie/blob/main/images/Schematic1.png)
 ![Schematic2](https://github.com/Donut-Studio/Glowtie/blob/main/images/Schematic2.png)
@@ -45,7 +45,7 @@ Look at these pictures if you are not sure where to place your components:
 
 Make sure to program your chip in advance or, add some programming cables to the back.
 Now your pcb should look something like this:
-![Done](https://github.com/Donut-Studio/Glowtie/blob/main/images/PCBFinished.png)
+![Done](https://github.com/Donut-Studio/Glowtie/blob/main/images/PCBDone.png)
 
 ***
 # Programming
