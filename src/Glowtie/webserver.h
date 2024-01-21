@@ -213,7 +213,7 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
       </div>
     </form>
 	<script>
-      getData('reds','red');
+      getData('redS','red');
       getData('greenS','green');
       getData('blueS','blue');
       setInterval(function(){getData('vcc', 'vcc');}, 2500);
