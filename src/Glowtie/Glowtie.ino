@@ -265,7 +265,10 @@ void errorAnim()
     delay(EFFECTREFRESHTIME);
   }
 }
-
+byte getAverage(byte a, byte b)
+{
+  return (byte)(((int)a + (int)b) / 2);
+}
 
 /* --- STATIC EFFECTS --- */
 
@@ -854,34 +857,23 @@ void filler()
   if (effectIndex != 0 && effectIndex != 10)
     return;
 
-  byte r1 = redValue;
-  byte g1 = greenValue;
-  byte b1 = blueValue;
+  byte r1 = random(0, 256);
+  byte g1 = random(0, 256);
+  byte b1 = random(0, 256);
 
-  byte r2 = redValue;
-  byte g2 = greenValue;
-  byte b2 = blueValue;
+  byte r2 = getAverage(redValue, r1);
+  byte g2 = getAverage(redValue, g1);
+  byte b2 = getAverage(redValue, b1);
+  
+  pixels.fill(pixels.Color(redValue, greenValue, blueValue), 8, 4);
+  pixels.fill(pixels.Color(redValue, greenValue, blueValue), 1, 4);
 
-  if (effectIndex == 0)
-  {
-    r2 = random(0, 256);
-    g2 = random(0, 256);
-    b2 = random(0, 256);
-  }
-  else if (effectIndex == 10)
-  {
-    r1 = random(0, 256);
-    g1 = random(0, 256);
-    b1 = random(0, 256);
-  }
-
-  pixels.fill(pixels.Color(r1, g1, b1), 1, 4);
-
-  pixels.fill(pixels.Color(r2, g2, b2), 5, 3);
   pixels.setPixelColor(0, r2, g2, b2);
+  pixels.setPixelColor(5, r2, g2, b2);
+  pixels.setPixelColor(7, r2, g2, b2);
   pixels.setPixelColor(12, r2, g2, b2);
 
-  pixels.fill(pixels.Color(r1, g1, b1), 8, 4);
+  pixels.setPixelColor(6, r1, g1, b1);
     
   pixels.show();
 }
