@@ -286,9 +286,11 @@ byte getAverage(byte a, byte b)
 void lowBattery() 
 {
   pixels.clear();
-  pixels.fill(pixels.Color(25, 0, 0), 4, 5);
-  pixels.setPixelColor(1, 25, 0, 0);
-  pixels.setPixelColor(11, 25, 0, 0);
+  pixels.setPixelColor(1, 50, 0, 0);
+  pixels.setPixelColor(4, 50, 0, 0);
+  pixels.setPixelColor(6, 50, 0, 0);
+  pixels.setPixelColor(8, 50, 0, 0);
+  pixels.setPixelColor(11, 50, 0, 0);
   pixels.show();
 }
 void disableDisplay() 
