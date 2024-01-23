@@ -102,7 +102,7 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
   <body>
     <h1 id="colorUpdate">Glowtie</h1>
     <br />
-    <h2 id="vcc" style="text-align:center;">---- mV</h2>
+    <h2 id="vcc" style="text-align:center;">ADC: ----</h2>
     <br />
     <form action="" name="settings" id="settings" method="post">
       <div id="sliderCont">

@@ -10,6 +10,7 @@
 #define NUMPIXELS      13
 #define BATTCHECKTIME 10000
 #define EFFECTREFRESHTIME 75
+#define LOWBATTERYVALUE 3050
 
 const char *ssid = "Glowtie";
 const char *password = "pleaseletmein";
@@ -186,7 +187,7 @@ void loop()
 void handleGetRed() { server.send(200, "text/plane", String(redValue)); }
 void handleGetGreen() { server.send(200, "text/plane", String(greenValue)); }
 void handleGetBlue() { server.send(200, "text/plane", String(blueValue)); }
-void handleGetVCC() { server.send(200, "text/plane", String(ESP.getVcc()) + " mV"); }
+void handleGetVCC() { server.send(200, "text/plane", "ADC: " + String(ESP.getVcc())); }
 void handleRoot() 
 {
   if (server.args() > 0) 
@@ -235,8 +236,6 @@ void updatePixels()
 }
 bool hasLowBattery()
 {
-  // return ESP.getVcc() < 3100; // supply voltage of the esp
-
   // get the average supply voltage from 6 readings
   int avg = 0;
   for (byte b = 0; b < 6; b++)
@@ -246,7 +245,7 @@ bool hasLowBattery()
   }
   avg /= 6;
 
-  return avg < 3100;
+  return avg < LOWBATTERYVALUE;
 }
 void successAnim()
 {
@@ -287,7 +286,9 @@ byte getAverage(byte a, byte b)
 void lowBattery() 
 {
   pixels.clear();
-  pixels.setPixelColor(6, 50, 0, 0);
+  pixels.fill(pixels.Color(25, 0, 0), 4, 5);
+  pixels.setPixelColor(1, 25, 0, 0);
+  pixels.setPixelColor(11, 25, 0, 0);
   pixels.show();
 }
 void disableDisplay() 
@@ -588,7 +589,6 @@ void burstIn()
   if (effectIndex >= 17)
     effectIndex = 0;
 
-
   if (effectIndex == 0)
   {
     pixels.setPixelColor(2, redValue, greenValue, blueValue);
@@ -844,7 +844,6 @@ void starfield()
     pixels.setPixelColor(lastPixel, redValue / 3, greenValue / 3, blueValue / 3);
   else if (effectIndex == 8)
     pixels.setPixelColor(lastPixel, 0, 0, 0);
-    
 
   if (effectIndex % 2 == 0)
     pixels.show();
