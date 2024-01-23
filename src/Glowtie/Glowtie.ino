@@ -235,7 +235,18 @@ void updatePixels()
 }
 bool hasLowBattery()
 {
-  return ESP.getVcc() < 3100;
+  // return ESP.getVcc() < 3100; // supply voltage of the esp
+
+  // get the average supply voltage from 6 readings
+  int avg = 0;
+  for (byte b = 0; b < 6; b++)
+  {
+    avg += ESP.getVcc();
+    delay(25);
+  }
+  avg /= 6;
+
+  return avg < 3100;
 }
 void successAnim()
 {
@@ -269,6 +280,7 @@ byte getAverage(byte a, byte b)
 {
   return (byte)(((int)a + (int)b) / 2);
 }
+
 
 /* --- STATIC EFFECTS --- */
 
