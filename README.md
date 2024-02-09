@@ -76,13 +76,13 @@ The current LDO (AMS1117) has a dropout voltage of 1V. Meaning, that the differe
 The voltage levels of most LiPo batteries with one cell look like this:
 - 4.2V (fully charged)
 - 3.7V (normal)
-- 3.4V (low)
+- 3.5V (low, discharging even lower may reduce longevity)
 
 In this case the difference is about 0.9V with a fully charged battery and even lower for a used one.
 Thus, the LDO will drag down the voltage towards ground and reduce the output voltage.
 With a battery voltage of 4V the ESP (and LEDs) would not work reliable anymore. Not to mention the "low battery" mode which will stop all animations and the webserver eventhough the battery could still supply power.
 
-Stephen Hawes used an `MCP1826S` with only 250mV of dropout. However, the pinout of this LDO is not suitable for Raxathor's pcb. An alternative would be the `TC2117`.
+Stephen Hawes used an `MCP1826S` with only 250mV of dropout. However, the pinout of this LDO is not suitable for Raxathor's pcb. An alternative would be the `TC2117` (I've tested this LDO and it works perfectly!).
 I'd love to come back to this and design my own pcb, but that's a project for the future.
 
 

@@ -3,17 +3,13 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
-
 #include "webserver.h"
 
 #define PIN            12
 #define NUMPIXELS      13
 #define BATTCHECKTIME 10000
 #define EFFECTREFRESHTIME 75
-#define LOWBATTERYVALUE 3050
-
-const char *ssid = "Glowtie";
-const char *password = "pleaseletmein";
+#define LOWBATTERYVALUE 3150
 
 ADC_MODE(ADC_VCC);
 
@@ -45,10 +41,20 @@ enum GlowtieMode
   FILLER = 18
 };
 
-GlowtieMode mode = SOLID;
+const char *ssid = "Glowtie";
+const char *password = "pleaseletmein";
+
+const byte infinityeffect[] = { 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7, 6 };
+const byte chasereffect[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 6 };
+const byte circleseffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7 };
+const byte symmetryeffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+const byte bareffect[] = { 2, 1, 0, 6, 12, 11, 10, 3, 4, 5, 6, 7, 8, 9 };
+
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 ESP8266WebServer server(80);
+
+GlowtieMode mode = SOLID;
 
 unsigned long lastBatteryCheck = 0;
 unsigned long lastEffectUpdate = 0;
@@ -59,13 +65,17 @@ byte blueValue = 127;
 
 int effectIndex = 0;
 
-byte infinityeffect[] = { 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7, 6 };
-byte chasereffect[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 6 };
-byte circleseffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7 };
-byte symmetryeffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-
 byte lastPixel = 0;
 long firstPixelHue = 0;
+
+uint32_t halfColor;
+uint32_t randomColor;
+
+byte randomRed;
+byte randomGreen;
+byte randomBlue;
+bool isRandomPhase = false;
+
 
 void setup() 
 {
@@ -109,12 +119,21 @@ void loop()
   // check battery
   if (millis() - lastBatteryCheck >= BATTCHECKTIME) 
   {
-    if (hasLowBattery())
+    if (hasLowBattery(LOWBATTERYVALUE))
     {
-      WiFi.disconnect();
+      WiFi.mode(WIFI_OFF);
       errorAnim();
       lowBattery();
-      while(true) delay(5);
+      while (true) 
+      {
+        // battery below 3.5V: turn everything off
+        if (hasLowBattery(3050))
+        {
+          disableDisplay();
+          ESP.deepSleep(0);
+        }
+        delay(5);
+      }
     }
 
     lastBatteryCheck = millis();
@@ -232,9 +251,17 @@ void updatePixels()
     case TIE:
       tie();
       break;
+    case BAR:
+      randomColor = pixels.Color(redValue, greenValue, blueValue);
+      halfColor = pixels.Color(redValue / 2, greenValue / 2, blueValue / 2);
+      break;
+    case FILLER:
+      isRandomPhase = false;
+      randomColor = pixels.Color(redValue, greenValue, blueValue);
+      break;
   }
 }
-bool hasLowBattery()
+bool hasLowBattery(int minimum)
 {
   // get the average supply voltage from 6 readings
   int avg = 0;
@@ -245,7 +272,7 @@ bool hasLowBattery()
   }
   avg /= 6;
 
-  return avg < LOWBATTERYVALUE;
+  return avg < minimum;
 }
 void successAnim()
 {
@@ -279,6 +306,27 @@ byte getAverage(byte a, byte b)
 {
   return (byte)(((int)a + (int)b) / 2);
 }
+byte shiftByte(byte a, byte shift)
+{
+  if (shift > a || a > 255 - shift)
+    return a;
+  return a + random(-shift, shift + 1);
+}
+byte getShift(byte c)
+{
+  int shift = c / 2;
+  if (c > 127)
+    shift = (255 - c) / 2;
+
+  return shiftByte(c, shift);
+}
+void setBar(byte index, uint32_t color)
+{
+  if (0 > index || index > 6)
+    return;
+  pixels.setPixelColor(bareffect[index], color);
+  pixels.setPixelColor(bareffect[index + 7], color);
+}
 
 
 /* --- STATIC EFFECTS --- */
@@ -293,7 +341,7 @@ void lowBattery()
   pixels.setPixelColor(11, 50, 0, 0);
   pixels.show();
 }
-void disableDisplay() 
+void disableDisplay()
 {
   pixels.clear();
   pixels.show();
@@ -453,138 +501,35 @@ void pulse()
 }
 void bar()
 {
-  if (effectIndex >= 27)
+  if (effectIndex == 16)
+    return;
+  if (effectIndex >= 34)
+  {
     effectIndex = 0;
-
-  if (effectIndex == 0)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(2, redValue, greenValue, blueValue);
-    pixels.setPixelColor(3, redValue, greenValue, blueValue);
+    return;
   }
-  else if (effectIndex == 2)
-  {
-    pixels.setPixelColor(2, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(3, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(1, redValue, greenValue, blueValue);
-    pixels.setPixelColor(4, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 4)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(1, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(4, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(0, redValue, greenValue, blueValue);
-    pixels.setPixelColor(5, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 6)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(0, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(5, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(6, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 8)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(6, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(7, redValue, greenValue, blueValue);
-    pixels.setPixelColor(12, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 10)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(7, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(12, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(8, redValue, greenValue, blueValue);
-    pixels.setPixelColor(11, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 12)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(8, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(11, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(9, redValue, greenValue, blueValue);
-    pixels.setPixelColor(10, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 14)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(9, redValue, greenValue, blueValue);
-    pixels.setPixelColor(10, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 16)
-  {
-    pixels.setPixelColor(9, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(10, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(8, redValue, greenValue, blueValue);
-    pixels.setPixelColor(11, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 18)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(8, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(11, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(7, redValue, greenValue, blueValue);
-    pixels.setPixelColor(12, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 20)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(7, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(12, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(6, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 22)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(6, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(5, redValue, greenValue, blueValue);
-    pixels.setPixelColor(0, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 24)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(5, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(0, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(4, redValue, greenValue, blueValue);
-    pixels.setPixelColor(1, redValue, greenValue, blueValue);
-  }
-  else if (effectIndex == 26)
-  {
-    pixels.clear();
-
-    pixels.setPixelColor(4, redValue / 2, greenValue / 2, blueValue / 2);
-    pixels.setPixelColor(1, redValue / 2, greenValue / 2, blueValue / 2);
-
-    pixels.setPixelColor(3, redValue, greenValue, blueValue);
-    pixels.setPixelColor(2, redValue, greenValue, blueValue);
-  }
+    
 
   if (effectIndex % 2 == 0)
+  {
+    int ind = effectIndex / 2;
+    if (ind < 8)
+    {
+      pixels.clear();
+
+      setBar(ind - 1, halfColor);
+      setBar(ind, randomColor);
+    }
+    else 
+    {
+      pixels.clear();
+
+      setBar(-ind + 16, halfColor);
+      setBar(-ind + 15, randomColor);
+    }
+      
     pixels.show();
+  }
 }
 void burstIn()
 {
@@ -864,29 +809,34 @@ void rainbow()
 }
 void filler()
 {
-  if (effectIndex >= 21)
-    effectIndex = 0;
-
-  if (effectIndex != 0 && effectIndex != 10)
+  if (effectIndex == 7)
+  {
+    if (!isRandomPhase)
+      randomColor = pixels.Color(getShift(redValue), getShift(greenValue), getShift(blueValue));
+    else
+      randomColor = pixels.gamma32(pixels.Color(getShift(randomRed), getShift(randomGreen), getShift(randomBlue)));
     return;
+  }
+  else if (effectIndex >= 15)
+  {
+    isRandomPhase = !isRandomPhase;
 
-  byte r1 = random(0, 256);
-  byte g1 = random(0, 256);
-  byte b1 = random(0, 256);
+    randomRed = random(256);
+    randomGreen = random(256);
+    randomBlue = random(256);
 
-  byte r2 = getAverage(redValue, r1);
-  byte g2 = getAverage(redValue, g1);
-  byte b2 = getAverage(redValue, b1);
+    if (!isRandomPhase)
+      randomColor = pixels.Color(redValue, greenValue, blueValue);
+    else
+      randomColor = pixels.gamma32(pixels.Color(randomRed, randomGreen, randomBlue));
+    effectIndex = -1;
+    return;
+  }
   
-  pixels.fill(pixels.Color(redValue, greenValue, blueValue), 8, 4);
-  pixels.fill(pixels.Color(redValue, greenValue, blueValue), 1, 4);
-
-  pixels.setPixelColor(0, r2, g2, b2);
-  pixels.setPixelColor(5, r2, g2, b2);
-  pixels.setPixelColor(7, r2, g2, b2);
-  pixels.setPixelColor(12, r2, g2, b2);
-
-  pixels.setPixelColor(6, r1, g1, b1);
+  if (effectIndex < 7)
+    setBar(effectIndex, randomColor);
+  else
+    setBar(-effectIndex + 14, randomColor);
     
   pixels.show();
 }

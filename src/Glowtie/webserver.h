@@ -229,8 +229,10 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200)
-            if (url!='vcc')
+            if (url!='vcc'){
               document.getElementById(elementID).value = this.responseText;
+              updateColor();
+            }
             else
               document.getElementById(elementID).innerHTML = this.responseText;
         };
