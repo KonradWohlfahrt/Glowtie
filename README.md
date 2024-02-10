@@ -55,10 +55,7 @@ Now your pcb should look something like this:
 ***
 # Programming
 In the `src/Glowtie/` folder you'll find my version of the source code.
-Open the `Glowtie.ino` file and change the ssid and password to your preferences.
-This will be the access point you can connect to.
-If you don't want the chip to save the selected effect and color to the eeprom, 
-remove the `#include <EEPROM.h>` and the beginning and the marked code snippets in lines 77 and 200.
+Open the `Glowtie.ino` file and change the ssid and password of the access point to your preferences.
 Install the `Adafruit Neopixel` library and the `ESP8266` board manager.
 Connect the Glowtie with a FTDI Programmer (3.3V logic level) like this and upload the code:
 - TX (Glowtie) => RX (FTDI)
@@ -67,6 +64,22 @@ Connect the Glowtie with a FTDI Programmer (3.3V logic level) like this and uplo
 - GND (Glowtie) => GND (FTDI)
 - Flash (Glowtie) => GND (FTDI)
 > If you did not connect flash to gnd, the chip will no be in programming-mode.
+
+
+***
+# Adjusting the sketch
+I recommend to make some tests with the LDO before uploading the code.
+Therefore, I've added another sketch that will monitor the voltage readings of the esp.
+Just upload it and measure the voltage of the LiPo with a multimeter.
+If your battery is low on energy and the readings significantly change,
+use those values to determine when the Glowtie should go into low battery mode.
+Change the values in the `Glowtie` sketch:
+```cpp
+// change this according to your tests. AMS1117: 3100, TC2117: 3450
+#define LOWBATTERYVALUE 3450
+// change this according to your tests. AMS1117: 3000, TC2117: 3420
+#define DISABLEBATTERYVALUE 3420
+```
 
 
 ***

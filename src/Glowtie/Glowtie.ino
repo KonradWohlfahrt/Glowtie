@@ -7,12 +7,23 @@
 
 #define PIN            12
 #define NUMPIXELS      13
-#define BATTCHECKTIME 10000
 #define EFFECTREFRESHTIME 75
-#define LOWBATTERYVALUE 3150
+
+#define BATTCHECKTIME 5000
+#define BATTREADINGS 4
+
+// change this according to your tests. AMS1117: 3100, TC2117: 3450
+#define LOWBATTERYVALUE 3450
+// change this according to your tests. AMS1117: 3050, TC2117: 3420
+#define DISABLEVALUE 3420
+
+#define USEEEPROM true
+
+const char *ssid = "Glowtie";
+const char *password = "pleaseletmein";
+
 
 ADC_MODE(ADC_VCC);
-
 enum GlowtieMode
 {
   // STATIC
@@ -40,10 +51,6 @@ enum GlowtieMode
   RAINBOW = 17,
   FILLER = 18
 };
-
-const char *ssid = "Glowtie";
-const char *password = "pleaseletmein";
-
 const byte infinityeffect[] = { 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7, 6 };
 const byte chasereffect[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 6 };
 const byte circleseffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7 };
@@ -55,14 +62,14 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 ESP8266WebServer server(80);
 
 GlowtieMode mode = SOLID;
-
 unsigned long lastBatteryCheck = 0;
-unsigned long lastEffectUpdate = 0;
+
 
 byte redValue = 127;
 byte greenValue = 127;
 byte blueValue = 127;
 
+unsigned long lastEffectUpdate = 0;
 int effectIndex = 0;
 
 byte lastPixel = 0;
@@ -84,17 +91,16 @@ void setup()
 
   lowBattery();
 
+  if (USEEEPROM)
+  {
+    EEPROM.begin(4);
+    delay(500);
 
-  ///* if you don't want to use the eeprom, remove this
-  EEPROM.begin(4);
-  delay(500);
-
-  mode = (GlowtieMode)EEPROM.read(0);
-  redValue = EEPROM.read(1);
-  greenValue = EEPROM.read(2);
-  blueValue = EEPROM.read(3);
-  //*/
-
+    mode = (GlowtieMode)EEPROM.read(0);
+    redValue = EEPROM.read(1);
+    greenValue = EEPROM.read(2);
+    blueValue = EEPROM.read(3);
+  }
 
   if (WiFi.softAP(ssid, password)) 
     successAnim();
@@ -126,8 +132,8 @@ void loop()
       lowBattery();
       while (true) 
       {
-        // battery below 3.5V: turn everything off
-        if (hasLowBattery(3050))
+        // turn everything off
+        if (hasLowBattery(DISABLEVALUE))
         {
           disableDisplay();
           ESP.deepSleep(0);
@@ -216,16 +222,15 @@ void handleRoot()
     blueValue = (byte)server.arg("blue").toInt();
     mode = (GlowtieMode)server.arg("mode").toInt();
 
-    
-    ///* if you don't want to use the eeprom, remove this
-    EEPROM.write(0, (byte)mode);
-    EEPROM.write(1, redValue);
-    EEPROM.write(2, greenValue);
-    EEPROM.write(3, blueValue);
-    EEPROM.commit();
-    delay(500);
-    //*/
-    
+    if (USEEEPROM)
+    {
+      EEPROM.write(0, (byte)mode);
+      EEPROM.write(1, redValue);
+      EEPROM.write(2, greenValue);
+      EEPROM.write(3, blueValue);
+      EEPROM.commit();
+      delay(250);
+    }
 
     updatePixels();
   }
@@ -236,6 +241,18 @@ void handleRoot()
 
 /* --- UTILITY --- */
 
+bool hasLowBattery(int minimum)
+{
+  int avg = 0;
+  for (byte b = 0; b < BATTREADINGS; b++)
+  {
+    avg += ESP.getVcc();
+    delay(25);
+  }
+  avg /= BATTREADINGS;
+
+  return avg <= minimum;
+}
 void updatePixels()
 {
   effectIndex = 0;
@@ -260,19 +277,6 @@ void updatePixels()
       randomColor = pixels.Color(redValue, greenValue, blueValue);
       break;
   }
-}
-bool hasLowBattery(int minimum)
-{
-  // get the average supply voltage from 6 readings
-  int avg = 0;
-  for (byte b = 0; b < 6; b++)
-  {
-    avg += ESP.getVcc();
-    delay(25);
-  }
-  avg /= 6;
-
-  return avg < minimum;
 }
 void successAnim()
 {
@@ -334,11 +338,7 @@ void setBar(byte index, uint32_t color)
 void lowBattery() 
 {
   pixels.clear();
-  pixels.setPixelColor(1, 50, 0, 0);
-  pixels.setPixelColor(4, 50, 0, 0);
   pixels.setPixelColor(6, 50, 0, 0);
-  pixels.setPixelColor(8, 50, 0, 0);
-  pixels.setPixelColor(11, 50, 0, 0);
   pixels.show();
 }
 void disableDisplay()

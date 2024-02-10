@@ -10,6 +10,8 @@
 #define NUMPIXELS      13
 #define EFFECTREFRESHTIME 25
 
+#define BATTREADINGS 4
+
 const char *ssid = "Glowtie battery test";
 
 ADC_MODE(ADC_VCC);
@@ -76,14 +78,13 @@ void handleRoot()
 
 int getAverageBatteryReading()
 {
-  // get the average supply voltage from 6 readings
   int avg = 0;
-  for (byte b = 0; b < 6; b++)
+  for (byte b = 0; b < BATTREADINGS; b++)
   {
     avg += ESP.getVcc();
     delay(25);
   }
-  avg /= 6;
+  avg /= BATTREADINGS;
 
   return avg;
 }
