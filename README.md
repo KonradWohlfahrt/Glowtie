@@ -89,7 +89,7 @@ The current LDO (AMS1117) has a dropout voltage of 1V. Meaning, that the differe
 The voltage levels of most LiPo batteries with one cell look like this:
 - 4.2V (fully charged)
 - 3.7V (normal)
-- 3.5V (low, discharging even lower may reduce longevity)
+- 3.3V (low, discharging even lower may reduce longevity)
 
 In this case the difference is about 0.9V with a fully charged battery and even lower for a used one.
 Thus, the LDO will drag down the voltage towards ground and reduce the output voltage.
