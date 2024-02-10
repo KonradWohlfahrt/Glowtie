@@ -22,6 +22,8 @@ long firstPixelHue = 0;
 
 void setup() 
 {
+  Serial.begin(9600);
+
   pixels.begin();
   pixels.setBrightness(20);
 
@@ -51,6 +53,11 @@ void loop()
 
     firstPixelHue += 256;
     lastEffectUpdate = millis();
+
+    Serial.print("VCC: ");
+    Serial.print(ESP.getVcc());
+    Serial.print("  ---  VCC (avg): ");
+    Serial.println(getAverageBatteryReading());
   }
 }
 
