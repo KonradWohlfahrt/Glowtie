@@ -47,7 +47,7 @@ Look at these pictures if you are not sure where to place your components:
 ![Soldering Front](https://github.com/Donut-Studio/Glowtie/blob/main/images/SolderingFront.png)
 ![Soldering Back](https://github.com/Donut-Studio/Glowtie/blob/main/images/SolderingBack.png)
 
-Make sure to program your chip in advance or, add some programming cables to the back.
+Make sure to program your chip in advance or add some programming cables to the back.
 Now your pcb should look something like this:
 ![Done](https://github.com/Donut-Studio/Glowtie/blob/main/images/PCBDone.png)
 
@@ -80,6 +80,7 @@ Change the values in the `Glowtie` sketch:
 // change this according to your tests. AMS1117: 3000, TC2117: 3420
 #define DISABLEBATTERYVALUE 3420
 ```
+> Make sure that your Glowtie is turned off when you charge the battery!
 
 
 ***
@@ -105,4 +106,4 @@ Great, now you have yourself your own Glowtie!
 There is an enclosure which you can print in a 3d-printer.
 Remember to check out Stephen Hawes and Raxathor, as this repository is based on theirs.
 
-> Make sure that your Glowtie is turned off when you charge the battery!
+![Glowtie](https://github.com/Donut-Studio/Glowtie/blob/main/images/Glowtie.png)
