@@ -46,14 +46,21 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
         border-radius:15px;
         font-family:'Courier New', Courier, monospace;
       }
+      .grid{
+        display: inline-grid;
+        column-gap: 20px;
+        row-gap: 5px;
+        grid-template-columns: repeat(2, 1fr);
+  
+      }
       .container{
-        display:block;
+        display:inline-block;
         position:relative;
-        padding-left:80px;
+        padding-left:50px;
         padding-top:5px;
         margin-bottom:30px;
         cursor:pointer;
-        font-size:22px;
+        font-size:18px;
         font-family:"Courier New";
         font-weight:bold;
         color:white;
@@ -103,7 +110,7 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
     <h1 id="colorUpdate">Glowtie</h1>
     <br />
     <h2 style="text-align:center;">Battery Voltage:</h2>
-    <h2 id="vcc" style="text-align:center;">-.-- V</h2>
+    <h2 id="vcc" style="text-align:center;"></h2>
     <br />
     <form action="" name="settings" id="settings" method="post">
       <div id="sliderCont">
@@ -115,101 +122,101 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
         <input type="range" id="blueS" class="slider" min="0" max="255" value="127" name="blue" onchange="updateColor()" style="border: 3px solid blue;"><br />
       </div>
       <br />
-      <div style="width:200px;margin:auto;">
-        <label class="container">Off
-          <input type="radio" name="mode" value="0">
-          <span class="checkmark"></span>
-        </label>
+      <div style="margin-left:5px">
+      	<div class="grid">
+          <label class="container">Off
+            <input type="radio" name="mode" value="0">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Solid
+            <input type="radio" checked="checked" name="mode" value="1">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Tie
+            <input type="radio" name="mode" value="2">
+            <span class="checkmark"></span>
+          </label>
+        </div>
         
-        <label class="container">Solid
-          <input type="radio" checked="checked" name="mode" value="1">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Tie
-          <input type="radio" name="mode" value="2">
-          <span class="checkmark"></span>
-        </label>
         <hr />
-        <label class="container">Breathe
-          <input type="radio" name="mode" value="3">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Pulse
-          <input type="radio" name="mode" value="4">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Bar
-          <input type="radio" name="mode" value="5">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Burst in
-          <input type="radio" name="mode" value="6">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Burst out
-          <input type="radio" name="mode" value="7">
-          <span class="checkmark"></span>
-        </label>
+        	
+        <div class="grid">
+          <label class="container">Breathe
+        	<input type="radio" name="mode" value="3">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Pulse
+            <input type="radio" name="mode" value="4">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Bar
+            <input type="radio" name="mode" value="5">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Burst in
+            <input type="radio" name="mode" value="6">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Burst out
+            <input type="radio" name="mode" value="7">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        
         <hr />
-        <label class="container">Infinity
-          <input type="radio" name="mode" value="8">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Infinity Fill
-          <input type="radio" name="mode" value="9">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Chaser
-          <input type="radio" name="mode" value="10">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Chaser Fill
-          <input type="radio" name="mode" value="11">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Circles
-          <input type="radio" name="mode" value="12">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Circles Fill
-          <input type="radio" name="mode" value="13">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Symmetry
-          <input type="radio" name="mode" value="14">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Symmetry Fill
-          <input type="radio" name="mode" value="15">
-          <span class="checkmark"></span>
-        </label>
+        
+        <div class="grid">
+          <label class="container">Infinity
+            <input type="radio" name="mode" value="8">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Infinity Fill
+            <input type="radio" name="mode" value="9">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Chaser
+            <input type="radio" name="mode" value="10">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Chaser Fill
+            <input type="radio" name="mode" value="11">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Circles
+            <input type="radio" name="mode" value="12">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Circles Fill
+            <input type="radio" name="mode" value="13">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Symmetry
+            <input type="radio" name="mode" value="14">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Symmetry Fill
+            <input type="radio" name="mode" value="15">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        
         <hr />
-        <label class="container">Starfield
-          <input type="radio" name="mode" value="16">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Rainbow
-          <input type="radio" name="mode" value="17">
-          <span class="checkmark"></span>
-        </label>
-
-        <label class="container">Filler
-          <input type="radio" name="mode" value="18">
-          <span class="checkmark"></span>
-        </label>
+        
+        <div class="grid">
+          <label class="container">Starfield
+            <input type="radio" name="mode" value="16">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Rainbow
+            <input type="radio" name="mode" value="17">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Filler
+            <input type="radio" name="mode" value="18">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <br/>
         <button class="button" onclick="document.forms['settings'].submit()" type="button">UPDATE</button>
       </div>
     </form>

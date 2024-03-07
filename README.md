@@ -11,7 +11,7 @@ Let's get started!
 # Raxathor's Adaptation
 Check out the instructable from [Raxathor](https://www.instructables.com/GlowTie/).
 
-**Materials**
+**Materials:**
 | Component |  Amount  |
 |:----------|---------:|
 | custom pcb | 1 |
@@ -35,13 +35,13 @@ Check out the instructable from [Raxathor](https://www.instructables.com/GlowTie
 | 1uF 0805 | 1 |
 | 100uF 1206 | 1 |
 
-**Soldering**
+**Soldering:**
 Solder the components to the indicated boxes on the images.
 Make sure to program your chip in advance or add some programming cables to the back.
 ![Soldering Front](https://github.com/Donut-Studio/Glowtie/blob/main/images/RaxathorSolderingFront.png)
 ![Soldering Back](https://github.com/Donut-Studio/Glowtie/blob/main/images/RaxathorSolderingBack.png)
 
-**Issues**
+**Issues:**
 During my tests I discovered a few flaws with the design.
 
 First of all, the AMS1117 LDO has a too high dropout voltage.
@@ -59,7 +59,7 @@ There are many other small, annoying design choices I fixed.
 ***
 # My Adaptation
 That's why I created my own Glowtie. Those are all the changed I made:
-- replaced charging circuit with the popular board
+- replaced charging circuit with popular charging board (easier to solder)
 - added PH2.0 connector for LiPo battery
 - replaced smd with through-hole switch
 - added holes for M3 screws to secure the pcb on the 3d print
@@ -70,7 +70,7 @@ That's why I created my own Glowtie. Those are all the changed I made:
 - better programming pins
 - every led has its own capacitor as recommended in the datasheet 
 
-**Materials**
+**Materials:**
 | Component | Amount | Silkscreen label |
 |:----------|:------:|-----------------:|
 | custom pcb | 1 | - |
@@ -92,10 +92,13 @@ That's why I created my own Glowtie. Those are all the changed I made:
 | PH2.0 2p | 1 | U6 |
 | 90 degree connector 6p | 1 | - |
 
-**Soldering**
+**Soldering:**
 Solder the components as indicated in the table and images.
 ![Soldering Front](https://github.com/Donut-Studio/Glowtie/blob/main/images/SolderingFront.png)
 ![Soldering Back](https://github.com/Donut-Studio/Glowtie/blob/main/images/SolderingBack.png)
+Also check your datasheet of the battery. The charging board is commonly used for 18650 batteries.
+However, the charging current of 1A is not suitable for the batteries used here.
+Here's a great [video](https://www.youtube.com/watch?v=6asCEBm4ZAw) showing how you can change the charging resistor (I've used 5.1k 0805).
 
 
 ***
@@ -116,6 +119,9 @@ Connect the Glowtie with a FTDI Programmer (3.3V logic level) like this and uplo
 # The end
 Great, now you have yourself your own Glowtie!
 There is an enclosure which you can print in a 3d-printer.
+If you press the button for 1.5 seconds, the current effect will be saved to the eeprom.
+A short press will activate the random mode (green flash) which circles through the effects.
+Make sure to turn off the glowtie when loading!
 Remember to check out Stephen Hawes and Raxathor, as this repository is based on theirs.
 
 ![Glowtie](https://github.com/Donut-Studio/Glowtie/blob/main/images/Glowtie.png)

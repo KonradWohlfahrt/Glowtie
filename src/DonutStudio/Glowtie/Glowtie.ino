@@ -7,11 +7,12 @@
 #include "webserver.h"
 
 #define BUTTONPIN 0
-#define SAVETIME 2000
+#define SAVETIME 1500
 
 #define PIN 12
 #define NUMPIXELS 13
 #define EFFECTREFRESHTIME 75
+#define RANDOMTIME 20000
 
 #define BATTCHECKTIME 10000
 #define BATTREADINGS 10
@@ -56,7 +57,8 @@ const byte chasereffect[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 6 };
 const byte circleseffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7 };
 const byte symmetryeffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 const byte bareffect[] = { 2, 1, 0, 6, 12, 11, 10, 3, 4, 5, 6, 7, 8, 9 };
-
+const uint32_t red = 0xff0000;
+const uint32_t green = 0x00ff00;
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 ESP8266WebServer server(80);
@@ -65,6 +67,9 @@ GlowtieMode mode = SOLID;
 byte redValue = 127;
 byte greenValue = 127;
 byte blueValue = 127;
+
+bool isRandomMode = false;
+unsigned long lastRandomUpdate = 0;
 
 unsigned long lastBatteryCheck = 0;
 
@@ -104,9 +109,9 @@ void setup()
   }
   
   if (WiFi.softAP(ssid, password)) 
-    scrollAnim(pixels.Color(0, 255, 0));
+    scrollAnim(green);
   else 
-    flashAnim(pixels.Color(255, 0, 0));
+    flashAnim(red);
 
   server.on("/", handleRoot);
   server.on("/red", handleGetRed);
@@ -128,7 +133,7 @@ void loop()
     if (checkBattery(LOWBATTERYVALUE))
     {
       WiFi.mode(WIFI_OFF);
-      flashAnim(pixels.Color(255, 0, 0));
+      flashAnim(red);
       lowBattery();
       while (true)
       {
@@ -149,22 +154,45 @@ void loop()
 
   if (digitalRead(BUTTONPIN) == 0)
   {
+    bool shortPress = true;
     unsigned long started = millis();
     while (digitalRead(BUTTONPIN) == 0) 
     {
       handleDynamicEffects();
+
+      if (shortPress && millis() - started >= SAVETIME)
+      {
+        shortPress = false;
+        flashAnim(green);
+        EEPROM.write(0, (byte)mode);
+        EEPROM.write(1, redValue);
+        EEPROM.write(2, greenValue);
+        EEPROM.write(3, blueValue);
+        EEPROM.commit();
+        delay(250);
+      }
+      
       delay(5);
     }
 
-    if (millis() - started >= SAVETIME)
+    if (shortPress)
     {
-      flashAnim(pixels.Color(0, 255, 0));
-      EEPROM.write(0, (byte)mode);
-      EEPROM.write(1, redValue);
-      EEPROM.write(2, greenValue);
-      EEPROM.write(3, blueValue);
-      EEPROM.commit();
-      delay(250);
+      isRandomMode = !isRandomMode;
+      flashSingleAnim(isRandomMode ? green : red);
+      if (isRandomMode)
+        lastRandomUpdate = millis();
+      else
+        mode = (GlowtieMode)EEPROM.read(0);
+    }
+  }
+
+  if (isRandomMode)
+  {
+    if (millis() - lastRandomUpdate >= RANDOMTIME)
+    {
+      lastRandomUpdate = millis();
+      mode = (GlowtieMode)random(1, 19);
+      updatePixels();
     }
   }
 }
@@ -184,6 +212,8 @@ void handleRoot()
     greenValue = (byte)server.arg("green").toInt();
     blueValue = (byte)server.arg("blue").toInt();
     mode = (GlowtieMode)server.arg("mode").toInt();
+
+    isRandomMode = false;
 
     updatePixels();
   }
@@ -255,6 +285,19 @@ void flashAnim(uint32_t color)
       pixels.fill(color);
     else
       pixels.clear();
+    
+    pixels.show();
+    delay(EFFECTREFRESHTIME);
+  }
+}
+void flashSingleAnim(uint32_t color)
+{
+  for (int i = 0; i < 10; i++)
+  {
+    if (i % 2 == 0)
+      pixels.setPixelColor(6, color);
+    else
+      pixels.setPixelColor(6, 0);
     
     pixels.show();
     delay(EFFECTREFRESHTIME);
@@ -357,6 +400,7 @@ void lowBattery()
   pixels.setPixelColor(6, 50, 0, 0);
   pixels.show();
 }
+
 void disableDisplay()
 {
   pixels.clear();
