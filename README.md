@@ -53,7 +53,7 @@ Furthermore, soldering with a soldering iron was possible but challenging.
 Especially with the small pins of the FS8205A Mosfet.
 My smd switches (I've tried muliple) wouldn't always work correctly.
 
-There are many other small, annoying design choices I fixed.
+There are many other small, annoying design choices I changed in my adaptation.
 
 
 ***
@@ -74,7 +74,7 @@ That's why I created my own Glowtie. Those are all the changed I made:
 | Component | Amount | Silkscreen label |
 |:----------|:------:|-----------------:|
 | custom pcb | 1 | - |
-| lipo battery (max size: 20 x 30 x 7mm) | 1 | - |
+| lipo battery (max size: 30 x 30 x 7mm) | 1 | - |
 | ESP-12F | 1 | U4 |
 | LiPo charge board | 1 | U3 |
 | MIC39100 | 1 | U5 |
@@ -89,7 +89,7 @@ That's why I created my own Glowtie. Those are all the changed I made:
 | 10k 0805 | 6 | R1 - R4, R6, R8 |
 | 33k 0805 | 1 | R5 |
 | 220r 0805 | 1 | R7 |
-| PH2.0 2p | 1 | U6 |
+| PH2.0 2p (not necessary) | 1 | U6 |
 | 90 degree connector 6p | 1 | - |
 
 **Soldering:**
