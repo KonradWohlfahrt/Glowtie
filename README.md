@@ -112,6 +112,7 @@ Connect the Glowtie with a FTDI programmer (3.3V logic level) like this and uplo
 - VCC (Glowtie) => VCC (FTDI)
 - GND (Glowtie) => GND (FTDI)
 - Flash (Glowtie) => GND (FTDI)
+> For Board I've selected 'NodeMCU 0.9 (ESP-12 Module)'
 > If you did not connect flash to gnd, the chip will no be in programming-mode. You may also leave flash disconnected and just hold down the button while plugging in the FTDI programmer.
 
 
