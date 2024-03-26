@@ -8,22 +8,23 @@
 
 #define BUTTONPIN 0
 #define SAVETIME 1500
+#define DOUBLEPRESSINTERVAL 300
 
 #define PIN 12
 #define NUMPIXELS 13
 #define EFFECTREFRESHTIME 75
-#define RANDOMTIME 20000
+#define RANDOMTIMEMIN 60000
+#define RANDOMTIMEMAX 120000
 
 #define BATTCHECKTIME 10000
 #define BATTREADINGS 10
 
-#define LOWBATTERYVALUE 850
-#define SHUTDOWNVALUE 800
+#define LOWBATTERYVALUE 835
+#define SHUTDOWNVALUE 820
 
 
 const char *ssid = "Glowtie";
 const char *password = "pleaseletmein";
-
 
 enum GlowtieMode
 {
@@ -60,6 +61,7 @@ const byte bareffect[] = { 2, 1, 0, 6, 12, 11, 10, 3, 4, 5, 6, 7, 8, 9 };
 const uint32_t red = 0xff0000;
 const uint32_t green = 0x00ff00;
 
+
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 ESP8266WebServer server(80);
 
@@ -69,19 +71,22 @@ byte greenValue = 127;
 byte blueValue = 127;
 
 bool isRandomMode = false;
+unsigned long randomWait;
 unsigned long lastRandomUpdate = 0;
 
 unsigned long lastBatteryCheck = 0;
-
 unsigned long lastEffectUpdate = 0;
 int effectIndex = 0;
+
+unsigned long lastButtonPress = 0;
+bool awaitingDoublePress = false;
+
 
 byte lastPixel = 0;
 long firstPixelHue = 0;
 
 uint32_t halfColor;
 uint32_t randomColor;
-
 byte randomRed;
 byte randomGreen;
 byte randomBlue;
@@ -108,7 +113,8 @@ void setup()
     blueValue = EEPROM.read(3);
   }
   
-  if (WiFi.softAP(ssid, password)) 
+  // ssid, password, channel (default=1), if true: hide ssid, max simultaneous connections (0-8)
+  if (WiFi.softAP(ssid, password, 1, false, 1)) 
     scrollAnim(green);
   else 
     flashAnim(red);
@@ -117,6 +123,7 @@ void setup()
   server.on("/red", handleGetRed);
   server.on("/green", handleGetGreen);
   server.on("/blue", handleGetBlue);
+  server.on("/mode", handleGetMode);
   server.on("/vcc", handleGetVCC);
   server.begin();
 
@@ -177,21 +184,36 @@ void loop()
 
     if (shortPress)
     {
-      isRandomMode = !isRandomMode;
-      flashSingleAnim(isRandomMode ? green : red);
-      if (isRandomMode)
-        lastRandomUpdate = millis();
-      else
-        mode = (GlowtieMode)EEPROM.read(0);
+      if (!awaitingDoublePress)
+      {
+        awaitingDoublePress = true;
+        lastButtonPress = millis();
+      }
+      else if (millis() - lastButtonPress < DOUBLEPRESSINTERVAL)
+      {
+        toggleRandomMode();
+        awaitingDoublePress = false;
+      }
     }
+  }
+
+  if (awaitingDoublePress && millis() - lastButtonPress >= DOUBLEPRESSINTERVAL)
+  {
+    awaitingDoublePress = false;
+    showBatteryPercentage();
+    updatePixels();
   }
 
   if (isRandomMode)
   {
-    if (millis() - lastRandomUpdate >= RANDOMTIME)
+    if (millis() - lastRandomUpdate >= randomWait)
     {
+      GlowtieMode m = (GlowtieMode)random(1, 19);
+      while (m == mode)
+        m = (GlowtieMode)random(1, 19);
+      mode = m;
+      randomWait = random(RANDOMTIMEMIN, RANDOMTIMEMAX);
       lastRandomUpdate = millis();
-      mode = (GlowtieMode)random(1, 19);
       updatePixels();
     }
   }
@@ -203,7 +225,8 @@ void loop()
 void handleGetRed() { server.send(200, "text/plane", String(redValue)); }
 void handleGetGreen() { server.send(200, "text/plane", String(greenValue)); }
 void handleGetBlue() { server.send(200, "text/plane", String(blueValue)); }
-void handleGetVCC() { server.send(200, "text/plane", String(getVoltage(), 2) + " V"); }
+void handleGetMode() { server.send(200, "text/plane", String((int)mode)); }
+void handleGetVCC() { server.send(200, "text/plane", String(getBatteryPercent()) + "% (" + String(getVoltage(), 2) + "V)"); }
 void handleRoot() 
 {
   if (server.args() > 0) 
@@ -225,6 +248,7 @@ void handleRoot()
 /* --- UTILITY --- */
 
 float getVoltage() { return 4.3f / 1023 * analogRead(A0); }
+int getBatteryPercent() { return (int)(((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023 - LOWBATTERYVALUE) * 100); }
 bool checkBattery(int minimum)
 {
   int avg = 0;
@@ -261,6 +285,21 @@ void updatePixels()
       randomColor = pixels.Color(redValue, greenValue, blueValue);
       break;
   }
+}
+void toggleRandomMode()
+{
+  isRandomMode = !isRandomMode;
+  flashSingleAnim(isRandomMode ? green : red);
+  if (isRandomMode)
+  {
+    lastRandomUpdate = millis();
+    randomWait = random(RANDOMTIMEMIN, RANDOMTIMEMAX);
+  }
+  else
+    mode = (GlowtieMode)EEPROM.read(0);
+
+  if (mode == SOLID || mode == TIE)
+    updatePixels();
 }
 void scrollAnim(uint32_t color)
 {
@@ -302,6 +341,35 @@ void flashSingleAnim(uint32_t color)
     pixels.show();
     delay(EFFECTREFRESHTIME);
   }
+}
+void showBatteryPercentage()
+{
+  for (int i = 0; i < 7; i++)
+  {
+    setBar(i, green);
+    pixels.show();
+    delay(EFFECTREFRESHTIME);
+  }
+
+  int p = getBatteryPercent();
+  int ledAmount = (int)(0.06f * p + 0.5f);
+  uint32_t c = green;
+  if (p <= 20)
+    c = red;
+  else if (p <= 45)
+    c = 0xff4000;
+
+  for (int i = 6; i >= 0; i--)
+  {
+    if (i > ledAmount)
+      setBar(i, 0);
+    else
+      setBar(i, c);
+    pixels.show();
+    delay(EFFECTREFRESHTIME);
+  }
+
+  delay(2500);
 }
 byte getAverage(byte a, byte b)
 {

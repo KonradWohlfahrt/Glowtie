@@ -105,23 +105,24 @@ Here's a great [video](https://www.youtube.com/watch?v=6asCEBm4ZAw) showing how 
 # Programming (for both designs)
 In the `src/` folder you'll find my versions of the source code for each pcb design.
 Open `Glowtie.ino` and change the ssid and password of the access point to your preferences.
-Install the `Adafruit Neopixel` library and the `ESP8266` board manager.
+Install the `Adafruit Neopixel` library and the `ESP8266` board manager. For the board select: `NodeMCU 0.9 (ESP-12 Module)`.
 Connect the Glowtie with a FTDI programmer (3.3V logic level) like this and upload the code:
 - TX (Glowtie) => RX (FTDI)
 - RX (Glowtie) => TX (FTDI)
 - VCC (Glowtie) => VCC (FTDI)
 - GND (Glowtie) => GND (FTDI)
 - Flash (Glowtie) => GND (FTDI)
-> For Board I've selected 'NodeMCU 0.9 (ESP-12 Module)'
-> If you did not connect flash to gnd, the chip will no be in programming-mode. You may also leave flash disconnected and just hold down the button while plugging in the FTDI programmer.
+> If you did not connect flash to gnd, the chip will no be in programming-mode. In my design you may just hold down the button while plugging in the FTDI programmer.
 
 
 ***
 # The end
 Great, now you have yourself your own Glowtie!
 There is an enclosure which you can print in a 3d-printer.
-If you press the button for 1.5 seconds, the current effect will be saved to the eeprom.
-A short press will activate(green flash) / deactivate(red flash) the random mode which circles through the effects.
+Function of the buttons: \
+- short press: show current battery percentage
+- double press: toggle random mode (on: green flash, off: red flash)
+- long press: save current mode and color to eeprom
 Make sure to turn off the glowtie when loading!
 Remember to check out Stephen Hawes and Raxathor, as this repository is based on theirs.
 

@@ -109,7 +109,7 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
   <body>
     <h1 id="colorUpdate">Glowtie</h1>
     <br />
-    <h2 style="text-align:center;">Battery Voltage:</h2>
+    <h2 style="text-align:center;">Battery:</h2>
     <h2 id="vcc" style="text-align:center;"></h2>
     <br />
     <form action="" name="settings" id="settings" method="post">
@@ -125,15 +125,15 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
       <div style="margin-left:5px">
       	<div class="grid">
           <label class="container">Off
-            <input type="radio" name="mode" value="0">
+            <input id="sel0" type="radio" name="mode" value="0">
             <span class="checkmark"></span>
           </label>
           <label class="container">Solid
-            <input type="radio" checked="checked" name="mode" value="1">
+            <input id="sel1" type="radio" name="mode" value="1">
             <span class="checkmark"></span>
           </label>
           <label class="container">Tie
-            <input type="radio" name="mode" value="2">
+            <input id="sel2" type="radio" name="mode" value="2">
             <span class="checkmark"></span>
           </label>
         </div>
@@ -142,23 +142,23 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
         	
         <div class="grid">
           <label class="container">Breathe
-        	<input type="radio" name="mode" value="3">
+        	  <input id="sel3" type="radio" name="mode" value="3">
             <span class="checkmark"></span>
           </label>
           <label class="container">Pulse
-            <input type="radio" name="mode" value="4">
+            <input id="sel4" type="radio" name="mode" value="4">
             <span class="checkmark"></span>
           </label>
           <label class="container">Bar
-            <input type="radio" name="mode" value="5">
+            <input id="sel5" type="radio" name="mode" value="5">
             <span class="checkmark"></span>
           </label>
           <label class="container">Burst in
-            <input type="radio" name="mode" value="6">
+            <input id="sel6" type="radio" name="mode" value="6">
             <span class="checkmark"></span>
           </label>
           <label class="container">Burst out
-            <input type="radio" name="mode" value="7">
+            <input id="sel7" type="radio" name="mode" value="7">
             <span class="checkmark"></span>
           </label>
         </div>
@@ -167,35 +167,35 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
         
         <div class="grid">
           <label class="container">Infinity
-            <input type="radio" name="mode" value="8">
+            <input id="sel8" type="radio" name="mode" value="8">
             <span class="checkmark"></span>
           </label>
           <label class="container">Infinity Fill
-            <input type="radio" name="mode" value="9">
+            <input id="sel9" type="radio" name="mode" value="9">
             <span class="checkmark"></span>
           </label>
           <label class="container">Chaser
-            <input type="radio" name="mode" value="10">
+            <input id="sel10" type="radio" name="mode" value="10">
             <span class="checkmark"></span>
           </label>
           <label class="container">Chaser Fill
-            <input type="radio" name="mode" value="11">
+            <input id="sel11" type="radio" name="mode" value="11">
             <span class="checkmark"></span>
           </label>
           <label class="container">Circles
-            <input type="radio" name="mode" value="12">
+            <input id="sel12" type="radio" name="mode" value="12">
             <span class="checkmark"></span>
           </label>
           <label class="container">Circles Fill
-            <input type="radio" name="mode" value="13">
+            <input id="sel13" type="radio" name="mode" value="13">
             <span class="checkmark"></span>
           </label>
           <label class="container">Symmetry
-            <input type="radio" name="mode" value="14">
+            <input id="sel14" type="radio" name="mode" value="14">
             <span class="checkmark"></span>
           </label>
           <label class="container">Symmetry Fill
-            <input type="radio" name="mode" value="15">
+            <input id="sel15" type="radio" name="mode" value="15">
             <span class="checkmark"></span>
           </label>
         </div>
@@ -204,15 +204,15 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
         
         <div class="grid">
           <label class="container">Starfield
-            <input type="radio" name="mode" value="16">
+            <input id="sel16" type="radio" name="mode" value="16">
             <span class="checkmark"></span>
           </label>
           <label class="container">Rainbow
-            <input type="radio" name="mode" value="17">
+            <input id="sel17" type="radio" name="mode" value="17">
             <span class="checkmark"></span>
           </label>
           <label class="container">Filler
-            <input type="radio" name="mode" value="18">
+            <input id="sel18" type="radio" name="mode" value="18">
             <span class="checkmark"></span>
           </label>
         </div>
@@ -224,6 +224,7 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
       getData('redS','red');
       getData('greenS','green');
       getData('blueS','blue');
+      getData('', 'mode');
       setInterval(function(){getData('vcc', 'vcc');}, 2500);
       function updateColor(){
         var red = document.forms['settings'].red.value;
@@ -236,15 +237,17 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
       function getData(elementID, url){
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200)
-            if (url!='vcc'){
+          if(this.readyState == 4 && this.status == 200)
+            if(url=='vcc')
+              document.getElementById(elementID).innerHTML = this.responseText;
+            else if(url=='mode')
+              document.getElementById('sel'+this.responseText).checked = true;
+            else {
               document.getElementById(elementID).value = this.responseText;
               updateColor();
             }
-            else
-              document.getElementById(elementID).innerHTML = this.responseText;
         };
-        xhttp.open('GET', url, true);
+        xhttp.open('GET',url,true);
         xhttp.send();
       }
     </script>
