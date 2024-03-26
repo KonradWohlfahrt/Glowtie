@@ -119,7 +119,7 @@ Connect the Glowtie with a FTDI programmer (3.3V logic level) like this and uplo
 # The end
 Great, now you have yourself your own Glowtie!
 There is an enclosure which you can print in a 3d-printer.
-Function of the buttons: \
+Button functions:
 - short press: show current battery percentage
 - double press: toggle random mode (on: green flash, off: red flash)
 - long press: save current mode and color to eeprom
