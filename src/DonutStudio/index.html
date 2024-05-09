@@ -21,13 +21,13 @@
         background:#000000;
         outline:none;
         border-radius:15px;}
-      .numberInput{appearance:none;
-        width:100px;height:25px;
+      .numberInput{
+        width:50px;height:25px;
         margin:10px;
         background:#000000;color:white;
         font-family:'Courier New';
         font-weight:bold;
-        border:3px solid white;
+        border:3px dotted white;
         border-radius:15px;}
       #colorUpdate{background-color:black;
         width:150px;height:30px;
@@ -63,13 +63,13 @@
         width:20px;height:10px;
         border-radius:5px;}
     </style>
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,user-scalable=0,minimum-scale=1.0,maximum-scale=1.0"/>
   </head>
   <body>
     <h1 id="colorUpdate">Glowtie</h1><br/>
     <h2 style="text-align:center">Battery:</h2>
     <h2 id="vcc" style="text-align:center"></h2>
-    <form action="" name="modes" id="modes" method="post">
+    <form action="" name="settings" id="settings" method="post">
         <div style="margin:auto;width:75%;">
             RED<br/><input type="range" id="redS" class="slider" min="0" max="255" value="127" name="red" onchange="updateColor()" style="border: 3px solid red;"><br/>
             GREEN<br/><input type="range" id="greenS" class="slider" min="0" max="255" value="127" name="green" onchange="updateColor()" style="border: 3px solid green;"><br/>
@@ -171,22 +171,23 @@
             </label>
             </div>
         </div>
-        <div style="text-align:center"><button class="button" onclick="document.forms['modes'].submit()" type="button">UPDATE</button></div>
+        <div style="text-align:center"><button class="button" onclick="document.forms['settings'].submit()" type="button">UPDATE</button></div>
     </form>
 
     <hr><br/><h2 style="text-align:center">Settings</h2>
 
-    <form action="" name="settings" id="settings" method="post">
+    <form action="" name="pref" id="pref" method="post">
         <h3>Random mode</h3>
         <div style="margin:auto;text-align:center;">
             <div style="margin:auto;margin-bottom:10px;margin-top:10px;">
                 <label class="container">Change color
-                    <input id="randommode" type="checkbox" name="randommode" value="0">
+                    <input id="randomcol" type="checkbox" name="randomcol" value="1">
                     <span class="checkmark"></span>
-                </label><br/>
-            </div>
-            Minimum seconds<input type="range" id="minInp" name="minInp" class="numberInput" min="5" max="600" value="40"><br/>
-            Maximum seconds<input type="range" id="maxInp" name="maxInp" class="numberInput" min="5" max="600" value="90"><br/>
+                </label>
+            </div><br/>
+            Change mode in
+            <input type="number" id="minInp" name="minInp" class="numberInput" min="5" max="600" maxlength="3" value="40">-
+            <input type="number" id="maxInp" name="maxInp" class="numberInput" min="5" max="600" maxlength="3" value="90">seconds.
         </div>
         <h3>LED Brightness</h3>
         <div class="grid">
@@ -195,23 +196,21 @@
                 <span class="checkmark"></span>
             </label>
             <label class="container">Normal
-                <input id="bright1" type="radio" name="brightness" value="0">
+                <input id="bright1" type="radio" name="brightness" value="1">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Bright
-                <input id="bright2" type="radio" name="brightness" value="0">
+                <input id="bright2" type="radio" name="brightness" value="2">
                 <span class="checkmark"></span>
             </label>
         </div>
         
-        <div style="text-align:center"><button class="button" onclick="document.forms['settings'].submit()" type="button">UPDATE</button></div>
+        <div style="text-align:center"><button class="button" onclick="document.forms['pref'].submit()" type="button">UPDATE</button></div>
     </form>
 	<script>
-      getData('redS','red');
-      getData('greenS','green');
-      getData('blueS','blue');
-      getData('', 'mode');
-      setInterval(function(){getData('vcc', 'vcc');}, 2500);
+      getData('redS','red');getData('greenS','green');getData('blueS','blue');getData('','mode');
+      getData('randomcol','random');getData('minInp','min');getData('maxInp','max');getData('','brightness');
+      setInterval(function(){getData('vcc','vcc');}, 2500);
       function updateColor(){
         var red = document.forms['settings'].red.value;
         var green = document.forms['settings'].green.value;
@@ -219,21 +218,20 @@
         var rgb = blue | (green << 8) | (red << 16);
         document.getElementById("colorUpdate").style.backgroundColor = "#" + (0x1000000 + rgb).toString(16).slice(1);
       }
-      function getData(elementID, url){
+      function getData(elementID,url){
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
-          if(this.readyState == 4 && this.status == 200)
-            if(url=='vcc')
-              document.getElementById(elementID).innerHTML = this.responseText;
-            else if(url=='mode')
-              document.getElementById('sel'+this.responseText).checked = true;
+          if(this.readyState==4 && this.status==200)
+            if(url=='vcc')document.getElementById(elementID).innerHTML = this.responseText;
+            else if(url=='mode')document.getElementById('sel'+this.responseText).checked = true;
+            else if(url=='brightness')document.getElementById('bright'+this.responseText).checked = true;
+            else if(url=='randomCol')document.getElementById(elementID).checked = this.responseText == 1;
             else {
               document.getElementById(elementID).value = this.responseText;
               updateColor();
             }
         };
-        xhttp.open('GET',url,true);
-        xhttp.send();
+        xhttp.open('GET',url,true);xhttp.send();
       }
     </script>
   </body>
