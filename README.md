@@ -90,7 +90,7 @@ That's why I created my own Glowtie. Those are all the changed I made:
 | 33k 0805 | 1 | R5 |
 | 220r 0805 | 1 | R7 |
 | PH2.0 2p (not necessary) | 1 | U6 |
-| 90 degree connector 6p | 1 | - |
+| 90 degree connector 5p | 1 | - |
 
 **Soldering:**
 Solder the components as indicated in the table and images.
@@ -119,11 +119,12 @@ Connect the Glowtie with a FTDI programmer (3.3V logic level) like this and uplo
 # The end
 Great, now you have yourself your own Glowtie!
 There is an enclosure which you can print in a 3d-printer.
+
 Button functions:
 - short press: show current battery percentage
 - double press: toggle random mode (on: green flash, off: red flash)
-- long press: save current mode and color to eeprom
-Make sure to turn off the glowtie when loading!
+- long press: save current mode and color to eeprom  
+
 Remember to check out Stephen Hawes and Raxathor, as this repository is based on theirs.
 
 ![Glowtie](https://github.com/Donut-Studio/Glowtie/blob/main/images/Glowtie.png)

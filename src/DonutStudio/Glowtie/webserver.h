@@ -108,20 +108,20 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
   </head>
   <body>
     <h1 id="colorUpdate">Glowtie</h1>
-    <br />
+    <br/>
     <h2 style="text-align:center;">Battery:</h2>
     <h2 id="vcc" style="text-align:center;"></h2>
-    <br />
+    <br/>
     <form action="" name="settings" id="settings" method="post">
       <div id="sliderCont">
-        RED<br />
-        <input type="range" id="redS" class="slider" min="0" max="255" value="127" name="red" onchange="updateColor()" style="border: 3px solid red;"><br />
-        GREEN<br />
-        <input type="range" id="greenS" class="slider" min="0" max="255" value="127" name="green" onchange="updateColor()" style="border: 3px solid green;"><br />
-        BLUE<br />
-        <input type="range" id="blueS" class="slider" min="0" max="255" value="127" name="blue" onchange="updateColor()" style="border: 3px solid blue;"><br />
+        RED<br/>
+        <input type="range" id="redS" class="slider" min="0" max="255" value="127" name="red" onchange="updateColor()" style="border: 3px solid red;"><br/>
+        GREEN<br/>
+        <input type="range" id="greenS" class="slider" min="0" max="255" value="127" name="green" onchange="updateColor()" style="border: 3px solid green;"><br/>
+        BLUE<br/>
+        <input type="range" id="blueS" class="slider" min="0" max="255" value="127" name="blue" onchange="updateColor()" style="border: 3px solid blue;"><br/>
       </div>
-      <br />
+      <br/>
       <div style="margin-left:5px">
       	<div class="grid">
           <label class="container">Off
