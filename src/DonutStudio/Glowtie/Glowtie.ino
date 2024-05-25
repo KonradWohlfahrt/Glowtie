@@ -8,13 +8,11 @@
 
 #define BUTTONPIN 0
 #define SAVETIME 1500
-#define DOUBLEPRESSINTERVAL 300
+#define DOUBLEPRESSINTERVAL 400
 
 #define PIN 12
 #define NUMPIXELS 13
 #define EFFECTREFRESHTIME 75
-#define RANDOMTIMEMIN 60000
-#define RANDOMTIMEMAX 120000
 
 #define BATTCHECKTIME 10000
 #define BATTREADINGS 10
@@ -25,6 +23,13 @@
 
 const char *ssid = "Glowtie";
 const char *password = "pleaseletmein";
+
+const uint32_t red = 0xff0000;
+const uint32_t green = 0x00ff00;
+
+const byte brightness[] = { 10, 20, 30, 40 };
+const unsigned long randomTimeMin[] = { 120000, 60000, 30000, 10000 };
+const unsigned long randomTimeMax[] = { 360000, 120000, 60000, 20000 };
 
 enum GlowtieMode
 {
@@ -53,24 +58,30 @@ enum GlowtieMode
   RAINBOW = 17,
   FILLER = 18
 };
+
+
 const byte infinityeffect[] = { 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7, 6 };
 const byte chasereffect[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 6 };
 const byte circleseffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7 };
 const byte symmetryeffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 const byte bareffect[] = { 2, 1, 0, 6, 12, 11, 10, 3, 4, 5, 6, 7, 8, 9 };
-const uint32_t red = 0xff0000;
-const uint32_t green = 0x00ff00;
+
+
+
 
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 ESP8266WebServer server(80);
 
+byte brightnessIndex = 1;
 GlowtieMode mode = SOLID;
 byte redValue = 127;
 byte greenValue = 127;
 byte blueValue = 127;
 
 bool isRandomMode = false;
+bool chooseRandomColor = false;
+int speedIndex = 1;
 unsigned long randomWait;
 unsigned long lastRandomUpdate = 0;
 
@@ -103,20 +114,24 @@ void setup()
 
   lowBattery();
 
-  EEPROM.begin(4);
+  EEPROM.begin(7);
   delay(500);
-  if (EEPROM.read(0) <= 18)
-  {
-    mode = (GlowtieMode)EEPROM.read(0);
-    redValue = EEPROM.read(1);
-    greenValue = EEPROM.read(2);
-    blueValue = EEPROM.read(3);
-  }
+  mode = (GlowtieMode)(constrain(EEPROM.read(0), 0, 18));
+  redValue = EEPROM.read(1);
+  greenValue = EEPROM.read(2);
+  blueValue = EEPROM.read(3);
+
+  chooseRandomColor = EEPROM.read(4) == 0;
+  speedIndex = constrain(EEPROM.read(5), 0, 3);
+  brightnessIndex = constrain(EEPROM.read(6), 0, 3);
+  if (brightnessIndex != 1)
+    pixels.setBrightness(brightness[brightnessIndex]);
+
   
-  // ssid, password, channel (default=1), if true: hide ssid, max simultaneous connections (0-8)
+  // ssid, password, default channel, do not hide ssid, one simultaneous connections
   if (WiFi.softAP(ssid, password, 1, false, 1)) 
     scrollAnim(green);
-  else 
+  else
     flashAnim(red);
 
   server.on("/", handleRoot);
@@ -125,6 +140,9 @@ void setup()
   server.on("/blue", handleGetBlue);
   server.on("/mode", handleGetMode);
   server.on("/vcc", handleGetVCC);
+  server.on("/color", handleGetRandomColor);
+  server.on("/speed", handleGetSpeed);
+  server.on("/brightness", handleGetBrightness);
   server.begin();
 
   delay(100);
@@ -208,11 +226,15 @@ void loop()
   {
     if (millis() - lastRandomUpdate >= randomWait)
     {
+      uint32_t col = pixels.gamma32(pixels.Color(random(256), random(256), random(256)));
+      redValue = col >> 4;
+      greenValue = col >> 2;
+      blueValue = col & 0x0000ff;
       GlowtieMode m = (GlowtieMode)random(1, 19);
       while (m == mode)
         m = (GlowtieMode)random(1, 19);
       mode = m;
-      randomWait = random(RANDOMTIMEMIN, RANDOMTIMEMAX);
+      randomWait = random(randomTimeMin[speedIndex], randomTimeMax[speedIndex]);
       lastRandomUpdate = millis();
       updatePixels();
     }
@@ -227,21 +249,51 @@ void handleGetGreen() { server.send(200, "text/plane", String(greenValue)); }
 void handleGetBlue() { server.send(200, "text/plane", String(blueValue)); }
 void handleGetMode() { server.send(200, "text/plane", String((int)mode)); }
 void handleGetVCC() { server.send(200, "text/plane", String(getBatteryPercent()) + "% (" + String(getVoltage(), 2) + "V)"); }
+void handleGetRandomColor() { server.send(200, "text/plane", (chooseRandomColor ? "1" : "0")); }
+void handleGetSpeed() { server.send(200, "text/plane", String(speedIndex)); }
+void handleGetBrightness() { server.send(200, "text/plane", String(brightnessIndex)); }
 void handleRoot() 
 {
   if (server.args() > 0) 
   {
-    redValue = (byte)server.arg("red").toInt();
-    greenValue = (byte)server.arg("green").toInt();
-    blueValue = (byte)server.arg("blue").toInt();
-    mode = (GlowtieMode)server.arg("mode").toInt();
+    if (server.hasArg("red"))
+    {
+      redValue = (byte)server.arg("red").toInt();
+      greenValue = (byte)server.arg("green").toInt();
+      blueValue = (byte)server.arg("blue").toInt();
+      mode = (GlowtieMode)server.arg("mode").toInt();
 
-    isRandomMode = false;
+      isRandomMode = false;
 
-    updatePixels();
+      server.send(200, "text/html", index_html);
+
+      updatePixels();
+    }
+    else
+    {
+      chooseRandomColor = server.hasArg("randomcolor");
+      EEPROM.write(4, chooseRandomColor ? 0 : 255);
+      speedIndex = constrain(server.arg("speed").toInt(), 0, 3);
+      EEPROM.write(5, speedIndex);
+      brightnessIndex = constrain(server.arg("brightness").toInt(), 0, 3);
+      EEPROM.write(6, brightnessIndex);
+
+      if (pixels.getBrightness() != brightness[brightnessIndex])
+        pixels.setBrightness(brightness[brightnessIndex]);
+
+      server.send(200, "text/html", index_html);
+  
+      flashAnim(green);
+      EEPROM.commit();
+      delay(250);
+      
+
+      isRandomMode = false;
+      updatePixels();
+    }
   }
-
-  server.send(200, "text/html", index_html);
+  else
+    server.send(200, "text/html", index_html);
 }
 
 
@@ -293,7 +345,7 @@ void toggleRandomMode()
   if (isRandomMode)
   {
     lastRandomUpdate = millis();
-    randomWait = random(RANDOMTIMEMIN, RANDOMTIMEMAX);
+    randomWait = random(randomTimeMin[speedIndex], randomTimeMax[speedIndex]);
   }
   else
     mode = (GlowtieMode)EEPROM.read(0);
