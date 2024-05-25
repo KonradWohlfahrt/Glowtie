@@ -226,10 +226,14 @@ void loop()
   {
     if (millis() - lastRandomUpdate >= randomWait)
     {
-      uint32_t col = pixels.gamma32(pixels.Color(random(256), random(256), random(256)));
-      redValue = col >> 4;
-      greenValue = col >> 2;
-      blueValue = col & 0x0000ff;
+      if (chooseRandomColor)
+      {
+        uint32_t col = pixels.gamma32(pixels.Color(random(256), random(256), random(256)));
+        redValue = col >> 4;
+        greenValue = col >> 2;
+        blueValue = col & 0x0000ff;
+      }
+      
       GlowtieMode m = (GlowtieMode)random(1, 19);
       while (m == mode)
         m = (GlowtieMode)random(1, 19);
