@@ -106,16 +106,11 @@ bool isRandomPhase = false;
 
 void setup() 
 {
-  pixels.begin();
-  pixels.setBrightness(20);
-
   pinMode(A0, INPUT);
   pinMode(BUTTONPIN, INPUT);
 
-  lowBattery();
-
   EEPROM.begin(7);
-  delay(500);
+  delay(250);
   mode = (GlowtieMode)(constrain(EEPROM.read(0), 0, 18));
   redValue = EEPROM.read(1);
   greenValue = EEPROM.read(2);
@@ -124,8 +119,9 @@ void setup()
   chooseRandomColor = EEPROM.read(4) == 0;
   speedIndex = constrain(EEPROM.read(5), 0, 3);
   brightnessIndex = constrain(EEPROM.read(6), 0, 3);
-  if (brightnessIndex != 1)
-    pixels.setBrightness(brightness[brightnessIndex]);
+
+  pixels.begin();
+  pixels.setBrightness(brightness[brightnessIndex]);
 
   
   // ssid, password, default channel, do not hide ssid, one simultaneous connections
