@@ -52,8 +52,7 @@ However, the pinout of this LDO does not fit on Raxathor's pcb.
 Furthermore, soldering with a soldering iron was possible but challenging.
 Especially with the small pins of the FS8205A Mosfet.
 My smd switches (I've tried muliple) wouldn't always work correctly.
-
-There are many other small, annoying design choices I changed in my adaptation.
+I also had issues with the 3d printed case, as it was not able to secure the pcb for a long amount of time.
 
 
 ***
@@ -68,13 +67,17 @@ That's why I created my own Glowtie. Those are all the changed I made:
 - resistor from esp to first led, to prevent damage by high current
 - added a button
 - better programming pins
-- every led has its own capacitor as recommended in the datasheet 
+- every led has its own capacitor as recommended in the datasheet
+
+However, I've recently discovered a flaw with my design.
+The bowtie is not balanced, as the weight of the battery drags it down.
+You should put some small objects of equal size inside the other hole.
 
 **Materials:**
 | Component | Amount | Silkscreen label |
 |:----------|:------:|-----------------:|
 | custom pcb | 1 | - |
-| lipo battery (max size: 30 x 30 x 7mm) | 1 | - |
+| lipo battery (max size: width=30 x depth=40 x height=7mm) | 1 | - |
 | ESP-12F | 1 | U4 |
 | LiPo charge board | 1 | U3 |
 | MIC39100 | 1 | U5 |
@@ -89,8 +92,10 @@ That's why I created my own Glowtie. Those are all the changed I made:
 | 10k 0805 | 6 | R1 - R4, R6, R8 |
 | 33k 0805 | 1 | R5 |
 | 220r 0805 | 1 | R7 |
-| PH2.0 2p (not necessary) | 1 | U6 |
+| PH2.0 2p (not recommended -> takes up space) | 1 | U6 |
 | 90 degree connector 5p | 1 | - |
+| 3d printed case | 1 | - |
+| M3x8 screw with nut | 2 | - |
 
 **Soldering:**
 Solder the components as indicated in the table and images.
@@ -119,6 +124,7 @@ Connect the Glowtie with a FTDI programmer (3.3V logic level) like this and uplo
 # The end
 Great, now you have yourself your own Glowtie!
 There is an enclosure which you can print in a 3d-printer.
+I've used two M3x8 screws to secure the pcb on the print.
 
 Button functions:
 - short press: show current battery percentage
