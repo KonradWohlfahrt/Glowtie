@@ -17,8 +17,8 @@
 #define BATTCHECKTIME 10000
 #define BATTREADINGS 10
 
-#define LOWBATTERYVALUE 835
-#define SHUTDOWNVALUE 820
+#define LOWBATTERYVALUE 825
+#define SHUTDOWNVALUE 815
 
 
 const char *ssid = "Glowtie";
@@ -454,8 +454,8 @@ void showBatteryPercentage()
     delay(EFFECTREFRESHTIME);
   }
 
-  int p = getBatteryPercent();
-  int ledAmount = (int)(0.06f * p + 0.5f);
+  float p = getBatteryPercent();
+  int ledAmount = (int)(0.1f * p + 0.5f);
   uint32_t c = green;
   if (p <= 20)
     c = red;
@@ -482,8 +482,8 @@ void setBar(byte index, uint32_t color)
   pixels.setPixelColor(bareffect[index + 7], color);
 }
 
-float getVoltage() { return 4.3f / 1023 * analogRead(A0); }
-int getBatteryPercent() { return (int)(((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023 - LOWBATTERYVALUE) * 100); }
+float getVoltage() { return 4.3f / 1023 * analogRead(A0); } // formular: V = (R6 + R5) / (R6 * 1023) * analogRead(A0)
+float getBatteryPercent() { return ((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023f - LOWBATTERYVALUE) * 100f; }
 bool checkBattery(int minimum)
 {
   int avg = 0;
