@@ -483,7 +483,7 @@ void setBar(byte index, uint32_t color)
 }
 
 float getVoltage() { return 4.3f / 1023 * analogRead(A0); } // formular: V = (R6 + R5) / (R6 * 1023) * analogRead(A0)
-float getBatteryPercent() { return ((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023f - LOWBATTERYVALUE) * 100f; }
+float getBatteryPercent() { return ((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023 - LOWBATTERYVALUE) * 100; }
 bool checkBattery(int minimum)
 {
   int avg = 0;
