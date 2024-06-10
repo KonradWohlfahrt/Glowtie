@@ -205,7 +205,7 @@ void loop()
       }
       else if (millis() - lastButtonPress < DOUBLEPRESSINTERVAL)
       {
-        toggleRandomMode();
+        setRandomMode(!isRandomMode);
         awaitingDoublePress = false;
       }
     }
@@ -224,10 +224,10 @@ void loop()
     {
       if (chooseRandomColor)
       {
-        uint32_t col = pixels.gamma32(pixels.Color(random(256), random(256), random(256)));
-        redValue = col >> 4;
-        greenValue = col >> 2;
-        blueValue = col & 0x0000ff;
+        uint32_t col = getRandomColor();
+        redValue = col >> 16;
+        greenValue = col >> 8;
+        blueValue = (byte)col;
       }
       
       GlowtieMode m = (GlowtieMode)random(1, 19);
@@ -287,8 +287,6 @@ void handleRoot()
       EEPROM.commit();
       delay(250);
       
-
-      isRandomMode = false;
       updatePixels();
     }
   }
@@ -299,20 +297,6 @@ void handleRoot()
 
 /* --- UTILITY --- */
 
-float getVoltage() { return 4.3f / 1023 * analogRead(A0); }
-int getBatteryPercent() { return (int)(((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023 - LOWBATTERYVALUE) * 100); }
-bool checkBattery(int minimum)
-{
-  int avg = 0;
-  for (byte b = 0; b < BATTREADINGS; b++)
-  {
-    avg += analogRead(A0);
-    delay(2);
-  }
-  avg /= BATTREADINGS;
-
-  return avg <= minimum;
-}
 void updatePixels()
 {
   effectIndex = 0;
@@ -338,9 +322,70 @@ void updatePixels()
       break;
   }
 }
-void toggleRandomMode()
+void handleDynamicEffects()
 {
-  isRandomMode = !isRandomMode;
+  if (millis() - lastEffectUpdate >= EFFECTREFRESHTIME)
+  {
+    switch (mode)
+    {
+      case BREATHE:
+        breathe();
+        break;
+      case PULSE:
+        pulse();
+        break;
+      case BAR:
+        bar();
+        break;
+      case BURSTIN:
+        burstIn();
+        break;
+      case BURSTOUT:
+        burstOut();
+        break;
+
+      case INFINITYCIRCLE:
+        infinitycircle();
+        break;
+      case INFINITYCIRCLEFILL:
+        infinitycirclefill();
+        break;
+      case CHASER:
+        chaser();
+        break;
+      case CHASERFILL:
+        chaserfill();
+        break;
+      case CIRCLES:
+        circles();
+        break;
+      case CIRCLESFILL:
+        circlesfill();
+        break;
+      case SYMMETRY:
+        symmetry();
+        break;
+      case SYMMETRYFILL:
+        symmetryfill();
+        break;
+      
+      case STARFIELD:
+        starfield();
+        break;
+      case RAINBOW:
+        rainbow();
+        break;
+      case FILLER:
+        filler();
+        break;
+    }
+    effectIndex++;
+    lastEffectUpdate = millis();
+  }
+}
+void setRandomMode(bool value)
+{
+  isRandomMode = value;
   flashSingleAnim(isRandomMode ? green : red);
   if (isRandomMode)
   {
@@ -348,11 +393,17 @@ void toggleRandomMode()
     randomWait = random(randomTimeMin[speedIndex], randomTimeMax[speedIndex]);
   }
   else
-    mode = (GlowtieMode)EEPROM.read(0);
+  {
+    mode = (GlowtieMode)(constrain(EEPROM.read(0), 0, 18));
+    redValue = EEPROM.read(1);
+    greenValue = EEPROM.read(2);
+    blueValue = EEPROM.read(3);
+  }
 
   if (mode == SOLID || mode == TIE)
     updatePixels();
 }
+
 void scrollAnim(uint32_t color)
 {
   for (int i = 0; i < NUMPIXELS; i++)
@@ -423,6 +474,39 @@ void showBatteryPercentage()
 
   delay(2500);
 }
+void setBar(byte index, uint32_t color)
+{
+  if (0 > index || index > 6)
+    return;
+  pixels.setPixelColor(bareffect[index], color);
+  pixels.setPixelColor(bareffect[index + 7], color);
+}
+
+float getVoltage() { return 4.3f / 1023 * analogRead(A0); }
+int getBatteryPercent() { return (int)(((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023 - LOWBATTERYVALUE) * 100); }
+bool checkBattery(int minimum)
+{
+  int avg = 0;
+  for (byte b = 0; b < BATTREADINGS; b++)
+  {
+    avg += analogRead(A0);
+    delay(2);
+  }
+  avg /= BATTREADINGS;
+
+  return avg <= minimum;
+}
+bool isColorDim(uint32_t color) { return (color >> 16) < 7 && (color >> 8) < 7 && ((byte)color) < 7; }
+uint32_t getRandomColor()
+{
+  uint32_t col;
+  do
+  {
+    col = pixels.gamma32(pixels.Color(random(256), random(256), random(256)));
+  } while (isColorDim(col));
+  return col;
+}
+
 byte getAverage(byte a, byte b)
 {
   return (byte)(((int)a + (int)b) / 2);
@@ -438,77 +522,7 @@ byte getShift(byte c)
   int shift = c / 2;
   if (c > 127)
     shift = (255 - c) / 2;
-
   return shiftByte(c, shift);
-}
-void setBar(byte index, uint32_t color)
-{
-  if (0 > index || index > 6)
-    return;
-  pixels.setPixelColor(bareffect[index], color);
-  pixels.setPixelColor(bareffect[index + 7], color);
-}
-
-void handleDynamicEffects()
-{
-  if (millis() - lastEffectUpdate >= EFFECTREFRESHTIME)
-  {
-    switch (mode)
-    {
-      case BREATHE:
-        breathe();
-        break;
-      case PULSE:
-        pulse();
-        break;
-      case BAR:
-        bar();
-        break;
-      case BURSTIN:
-        burstIn();
-        break;
-      case BURSTOUT:
-        burstOut();
-        break;
-
-      case INFINITYCIRCLE:
-        infinitycircle();
-        break;
-      case INFINITYCIRCLEFILL:
-        infinitycirclefill();
-        break;
-      case CHASER:
-        chaser();
-        break;
-      case CHASERFILL:
-        chaserfill();
-        break;
-      case CIRCLES:
-        circles();
-        break;
-      case CIRCLESFILL:
-        circlesfill();
-        break;
-      case SYMMETRY:
-        symmetry();
-        break;
-      case SYMMETRYFILL:
-        symmetryfill();
-        break;
-      
-      case STARFIELD:
-        starfield();
-        break;
-      case RAINBOW:
-        rainbow();
-        break;
-      case FILLER:
-        filler();
-        break;
-    }
-    effectIndex++;
-    lastEffectUpdate = millis();
-  }
 }
 
 
@@ -1001,14 +1015,16 @@ void filler()
   {
     isRandomPhase = !isRandomPhase;
 
-    randomRed = random(256);
-    randomGreen = random(256);
-    randomBlue = random(256);
-
     if (!isRandomPhase)
       randomColor = pixels.Color(redValue, greenValue, blueValue);
     else
-      randomColor = pixels.gamma32(pixels.Color(randomRed, randomGreen, randomBlue));
+    {
+      randomColor = getRandomColor();
+      randomRed = randomColor >> 16;
+      randomGreen = randomColor >> 8;
+      randomBlue = (byte)randomColor;
+    }
+      
     effectIndex = -1;
     return;
   }
