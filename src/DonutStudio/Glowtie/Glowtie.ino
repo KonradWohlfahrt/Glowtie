@@ -17,7 +17,7 @@
 #define BATTCHECKTIME 10000
 #define BATTREADINGS 10
 
-#define LOWBATTERYVALUE 825
+#define LOWBATTERYVALUE 820
 #define SHUTDOWNVALUE 815
 
 
@@ -161,7 +161,7 @@ void loop()
         // turn everything off
         if (checkBattery(SHUTDOWNVALUE))
         {
-          disableDisplay();
+          disableLEDs();
           ESP.deepSleep(0);
         }
         delay(5);
@@ -210,7 +210,6 @@ void loop()
       }
     }
   }
-
   if (awaitingDoublePress && millis() - lastButtonPress >= DOUBLEPRESSINTERVAL)
   {
     awaitingDoublePress = false;
@@ -304,7 +303,7 @@ void updatePixels()
   switch (mode)
   {
     case OFF:
-      disableDisplay();
+      disableLEDs();
       break;
     case SOLID:
       solid();
@@ -496,33 +495,21 @@ bool checkBattery(int minimum)
 
   return avg <= minimum;
 }
-bool isColorDim(uint32_t color) { return (color >> 16) < 7 && (color >> 8) < 7 && ((byte)color) < 7; }
-uint32_t getRandomColor()
-{
-  uint32_t col;
-  do
-  {
-    col = pixels.gamma32(pixels.Color(random(256), random(256), random(256)));
-  } while (isColorDim(col));
-  return col;
-}
 
-byte getAverage(byte a, byte b)
+uint32_t getRandomColor() { return pixels.ColorHSV(random(65536)); }
+uint32_t getSimilarColor(uint32_t color) { return pixels.gamma32(pixels.Color(shiftByte((byte)(color >> 16)), shiftByte((byte)(color >> 8)), shiftByte((byte)color))); }
+byte shiftByte(byte c)
 {
-  return (byte)(((int)a + (int)b) / 2);
-}
-byte shiftByte(byte a, byte shift)
-{
-  if (shift > a || a > 255 - shift)
-    return a;
-  return a + random(-shift, shift + 1);
-}
-byte getShift(byte c)
-{
-  int shift = c / 2;
+  byte shift = c / 2;
   if (c > 127)
-    shift = (255 - c) / 2;
-  return shiftByte(c, shift);
+    shift = (-(int)c + 255) / 2;
+
+  if (c < 25)
+    return c + shift;
+  else if (c > 230)
+    return c - shift;
+  else
+    return c + (random(2) == 0 ? shift : -shift);
 }
 
 
@@ -535,7 +522,7 @@ void lowBattery()
   pixels.show();
 }
 
-void disableDisplay()
+void disableLEDs()
 {
   pixels.clear();
   pixels.show();
@@ -1006,9 +993,9 @@ void filler()
   if (effectIndex == 7)
   {
     if (!isRandomPhase)
-      randomColor = pixels.Color(getShift(redValue), getShift(greenValue), getShift(blueValue));
+      randomColor = pixels.Color(shiftByte(redValue), shiftByte(greenValue), shiftByte(blueValue));
     else
-      randomColor = pixels.gamma32(pixels.Color(getShift(randomRed), getShift(randomGreen), getShift(randomBlue)));
+      randomColor = pixels.gamma32(pixels.Color(shiftByte(randomRed), shiftByte(randomGreen), shiftByte(randomBlue)));
     return;
   }
   else if (effectIndex >= 15)
