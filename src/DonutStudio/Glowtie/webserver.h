@@ -70,16 +70,12 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
         <br/>
         <div style="margin:auto;width:75%">
             <div class="grid">
-                <label class="container">Off
+                <label class="container">Solid
                     <input id="sel0" type="radio" name="mode" value="0">
                     <span class="checkmark"></span>
                 </label>
-                <label class="container">Solid
+                <label class="container">Solid Rainbow
                     <input id="sel1" type="radio" name="mode" value="1">
-                    <span class="checkmark"></span>
-                </label>
-                <label class="container">Tie
-                    <input id="sel2" type="radio" name="mode" value="2">
                     <span class="checkmark"></span>
                 </label>
             </div>
@@ -88,23 +84,23 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
                 
             <div class="grid">
             <label class="container">Breathe
-                <input id="sel3" type="radio" name="mode" value="3">
+                <input id="sel2" type="radio" name="mode" value="2">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Pulse
-                <input id="sel4" type="radio" name="mode" value="4">
+                <input id="sel3" type="radio" name="mode" value="3">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Bar
-                <input id="sel5" type="radio" name="mode" value="5">
+                <input id="sel4" type="radio" name="mode" value="4">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Burst in
-                <input id="sel6" type="radio" name="mode" value="6">
+                <input id="sel5" type="radio" name="mode" value="5">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Burst out
-                <input id="sel7" type="radio" name="mode" value="7">
+                <input id="sel6" type="radio" name="mode" value="6">
                 <span class="checkmark"></span>
             </label>
             </div>
@@ -113,35 +109,35 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
             
             <div class="grid">
             <label class="container">Infinity
-                <input id="sel8" type="radio" name="mode" value="8">
+                <input id="sel7" type="radio" name="mode" value="7">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Infinity Fill
-                <input id="sel9" type="radio" name="mode" value="9">
+                <input id="sel8" type="radio" name="mode" value="8">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Chaser
-                <input id="sel10" type="radio" name="mode" value="10">
+                <input id="sel9" type="radio" name="mode" value="9">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Chaser Fill
-                <input id="sel11" type="radio" name="mode" value="11">
+                <input id="sel10" type="radio" name="mode" value="10">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Circles
-                <input id="sel12" type="radio" name="mode" value="12">
+                <input id="sel11" type="radio" name="mode" value="11">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Circles Fill
-                <input id="sel13" type="radio" name="mode" value="13">
+                <input id="sel12" type="radio" name="mode" value="12">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Symmetry
-                <input id="sel14" type="radio" name="mode" value="14">
+                <input id="sel13" type="radio" name="mode" value="13">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Symmetry Fill
-                <input id="sel15" type="radio" name="mode" value="15">
+                <input id="sel14" type="radio" name="mode" value="14">
                 <span class="checkmark"></span>
             </label>
             </div>
@@ -150,10 +146,14 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
             
             <div class="grid">
             <label class="container">Starfield
-                <input id="sel16" type="radio" name="mode" value="16">
+                <input id="sel15" type="radio" name="mode" value="15">
                 <span class="checkmark"></span>
             </label>
             <label class="container">Rainbow
+                <input id="sel16" type="radio" name="mode" value="16">
+                <span class="checkmark"></span>
+            </label>
+            <label class="container">Rainbow Fill
                 <input id="sel17" type="radio" name="mode" value="17">
                 <span class="checkmark"></span>
             </label>
