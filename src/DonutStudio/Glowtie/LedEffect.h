@@ -1,6 +1,8 @@
 #ifndef LEDEFFECT_h
 #define LEDEFFECT_h
 
+const byte bareffect[] = { 2, 1, 0, 6, 12, 11, 10, 3, 4, 5, 6, 7, 8, 9 };
+
 void scrollAnim(uint32_t color)
 {
   for (int i = 0; i < NUMPIXELS; i++)
@@ -60,8 +62,8 @@ void showBatteryPercentage()
     delay(EFFECTREFRESHTIME);
   }
 
-  float p = getBatteryPercent();
-  int ledAmount = (int)(0.1f * p + 0.5f);
+  int p = getBatteryPercent();
+  int ledAmount = (int)(0.08f * p + 0.3f);
   uint32_t c = green;
   if (p <= 20)
     c = red;
@@ -70,7 +72,7 @@ void showBatteryPercentage()
 
   for (int i = 6; i >= 0; i--)
   {
-    if (i > ledAmount)
+    if (i >= ledAmount)
       setBar(i, 0);
     else
       setBar(i, c);

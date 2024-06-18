@@ -17,7 +17,7 @@
 #define BATTCHECKTIME 10000
 #define BATTREADINGS 10
 
-#define LOWBATTERYVALUE 820
+#define LOWBATTERYVALUE 825
 #define SHUTDOWNVALUE 815
 
 
@@ -30,9 +30,6 @@ const uint32_t green = 0x00ff00;
 const byte brightness[] = { 10, 20, 30, 40 };
 const unsigned long randomTimeMin[] = { 120000, 60000, 30000, 10000 };
 const unsigned long randomTimeMax[] = { 360000, 120000, 60000, 20000 };
-
-const byte symmetryeffect[] = { 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-const byte bareffect[] = { 2, 1, 0, 6, 12, 11, 10, 3, 4, 5, 6, 7, 8, 9 };
 
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -63,7 +60,7 @@ bool awaitingDoublePress = false;
 /* --- UTILITY START --- */
 
 float getVoltage() { return 4.3f / 1023 * analogRead(A0); } // formular: Vbat = (R6 + R5) / (R6 * 1023) * analogRead(A0)
-float getBatteryPercent() { return ((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023 - LOWBATTERYVALUE) * 100; }
+int getBatteryPercent() { return (int)(((float)(analogRead(A0)) - LOWBATTERYVALUE) / (1023 - LOWBATTERYVALUE) * 100); }
 bool checkBattery(int minimum)
 {
   int avg = 0;
