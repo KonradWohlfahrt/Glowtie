@@ -4,7 +4,7 @@
 class BurstIn : public LedEffect
 {
   public:
-    BurstIn() : LedEffect() { }
+    BurstIn() : LedEffect(150) { }
 
     void onStart() { }
     void onUpdate(int& i) 
@@ -74,7 +74,7 @@ class BurstIn : public LedEffect
 class BurstOut : public LedEffect
 {
   public:
-    BurstOut() : LedEffect() { }
+    BurstOut() : LedEffect(150) { }
 
     void onStart() { }
     void onUpdate(int& i) 
