@@ -38,8 +38,8 @@ Check out the instructable from [Raxathor](https://www.instructables.com/GlowTie
 **Soldering:**
 Solder the components to the indicated boxes on the images.
 Make sure to program your chip in advance or add some programming cables to the back.
-![Soldering Front](https://github.com/Donut-Studio/Glowtie/blob/main/images/RaxathorSolderingFront.png)
-![Soldering Back](https://github.com/Donut-Studio/Glowtie/blob/main/images/RaxathorSolderingBack.png)
+![Soldering Front](https://github.com/KonradWohlfahrt/Glowtie/blob/main/images/RaxathorSolderingFront.png)
+![Soldering Back](https://github.com/KonradWohlfahrt/Glowtie/blob/main/images/RaxathorSolderingBack.png)
 
 **Issues:**
 During my tests I discovered a few flaws with the design.
@@ -99,8 +99,8 @@ You should put some small objects of equal size inside the other hole.
 
 **Soldering:**
 Solder the components as indicated in the table and images.
-![Soldering Front](https://github.com/Donut-Studio/Glowtie/blob/main/images/SolderingFront.png)
-![Soldering Back](https://github.com/Donut-Studio/Glowtie/blob/main/images/SolderingBack.png)
+![Soldering Front](https://github.com/KonradWohlfahrt/Glowtie/blob/main/images/SolderingFront.png)
+![Soldering Back](https://github.com/KonradWohlfahrt/Glowtie/blob/main/images/SolderingBack.png)
 Also check your datasheet of the battery. The charging board is commonly used for 18650 batteries.
 However, the charging current of 1A is not suitable for the batteries used here.
 Here's a great [video](https://www.youtube.com/watch?v=6asCEBm4ZAw) showing how you can change the charging resistor (I've used 5.1k 0805).
@@ -133,4 +133,4 @@ Button functions:
 
 Remember to check out Stephen Hawes and Raxathor, as this repository is based on theirs.
 
-![Glowtie](https://github.com/Donut-Studio/Glowtie/blob/main/images/Glowtie.png)
+![Glowtie](https://github.com/KonradWohlfahrt/Glowtie/blob/main/images/Glowtie.png)
